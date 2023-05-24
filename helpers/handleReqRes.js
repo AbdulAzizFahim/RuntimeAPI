@@ -12,6 +12,7 @@ const url = require('url');
 const { StringDecoder } = require('string_decoder');
 const routes = require('../routes');
 const { notFoundHandler } = require('../handlers/routeHandlers/notFoundHandler');
+const { parseJSON } = require('./utilities');
 
 // module scaffolidng
 const handler = {};
@@ -47,12 +48,15 @@ handler.handleReqRes = (req, res) => {
 
     const chosenHandler = routes[trimmedPath] ? routes[trimmedPath] : notFoundHandler;
 
+    // This buffer is send from the body of the POST Request
     req.on('data', (buffer) => {
         realData += decoder.write(buffer);
     });
 
     req.on('end', () => {
         realData += decoder.end();
+
+        requestProperties.body = parseJSON(realData);
 
         chosenHandler(requestProperties, (receivedStatusCode, receivedPayload) => {
             const statusCode = typeof receivedStatusCode === 'number' ? receivedStatusCode : 500;
@@ -61,11 +65,10 @@ handler.handleReqRes = (req, res) => {
             const payloadString = JSON.stringify(payload);
 
             // return the final response
+            res.setHeader('Content-Type', 'application/json');
             res.writeHead(statusCode);
             res.end(payloadString);
         });
-
-        res.end('Hello World');
     });
 };
 
