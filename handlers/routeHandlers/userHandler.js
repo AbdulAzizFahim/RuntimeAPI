@@ -23,6 +23,7 @@ handler.userhandler = (requestProperties, callback) => {
     }
 };
 
+// to handle user
 handler._users = {};
 
 handler._users.post = (requestProperties, callback) => {
