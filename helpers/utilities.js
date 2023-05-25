@@ -23,7 +23,6 @@ utilities.parseJSON = (jsonString) => {
     } catch {
         output = {};
     }
-    console.log(output);
     return output;
 };
 
