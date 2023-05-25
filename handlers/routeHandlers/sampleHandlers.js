@@ -9,7 +9,7 @@
 // module scaffolding
 const handler = {};
 
-handler.samplehandler = (requestProperties, callback) => {
+handler.sampleHandler = (requestProperties, callback) => {
     callback(200, {
         message: 'This is a sample url',
     });
