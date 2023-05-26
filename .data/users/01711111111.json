@@ -1,1 +1,7 @@
-{"firstName":"Abdul","lastName":"Aziz","phone":"01711111111","password":"259d56efe1ad41fad731cddddf1d34808921d252bf7b2d54509642633a8457b6","tosAgreement":true}
+{
+  "firstName": "Abdul",
+  "lastName": "Aziz",
+  "phone": "01711111111",
+  "password": "259d56efe1ad41fad731cddddf1d34808921d252bf7b2d54509642633a8457b6",
+  "tosAgreement": true
+}

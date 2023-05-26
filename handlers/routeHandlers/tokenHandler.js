@@ -12,6 +12,7 @@ const data = require('../../lib/data');
 const { hash } = require('../../helpers/utilities');
 const { createRandomString } = require('../../helpers/utilities');
 const { parseJSON } = require('../../helpers/utilities');
+
 // module scaffolding
 const handler = {};
 
@@ -76,9 +77,9 @@ handler._token.get = (requestProperties, callback) => {
             : false;
     if (id) {
         data.read('tokens', id, (err, tokenData) => {
-            const token = { ...parseJSON(tokenData) };
-            if (!err && token) {
-                callback(200, token);
+            const tokenObject = { ...parseJSON(tokenData) };
+            if (!err && tokenObject) {
+                callback(200, tokenObject);
             } else {
                 callback(404, { error: 'Requested token is not found' });
             }
@@ -88,7 +89,36 @@ handler._token.get = (requestProperties, callback) => {
     }
 };
 
-// handler._token.put = (requestProperties, callback) => {};
+handler._token.put = (requestProperties, callback) => {
+    const id =
+        typeof requestProperties.body.id === 'string' &&
+        requestProperties.body.id.trim().length === 20
+            ? requestProperties.body.id
+            : false;
+    const extend =
+        typeof requestProperties.body.extend === 'boolean' && requestProperties.body.extend === true
+            ? requestProperties.body.extend
+            : false;
+    if (id && extend) {
+        data.read('tokens', id, (err, tokenData) => {
+            const tokenObject = parseJSON(tokenData);
+            if (tokenObject.expires > Date.now()) {
+                tokenObject.expires = Date.now() + 60 * 60 * 1000;
+                data.update('tokens', id, tokenObject, (err2) => {
+                    if (!err2) {
+                        callback(200, { message: 'Token updated successfully!' });
+                    } else {
+                        callback(500, { error: 'There was a server side error!' });
+                    }
+                });
+            } else {
+                callback(404, { error: 'Token already expired!' });
+            }
+        });
+    } else {
+        callback(404, { error: 'There was a problem in your request' });
+    }
+};
 
 // handler._users.delete = (requestProperties, callback) => {};
 
