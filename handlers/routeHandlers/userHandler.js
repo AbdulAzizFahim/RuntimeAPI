@@ -11,6 +11,8 @@
 const data = require('../../lib/data');
 const { hash } = require('../../helpers/utilities');
 const { parseJSON } = require('../../helpers/utilities');
+const tokenHandler = require('./tokenHandler');
+
 // module scaffolding
 const handler = {};
 
@@ -98,17 +100,29 @@ handler._users.get = (requestProperties, callback) => {
             : false;
 
     if (phone) {
-        // lookup the user
-        data.read('users', phone, (err, u) => {
-            const user = { ...parseJSON(u) };
+        // verify token
+        const token =
+            typeof requestProperties.headersObject.token === 'string'
+                ? requestProperties.headersObject.token
+                : false;
 
-            if (!err && user) {
-                delete user.password;
+        tokenHandler._token.verify(token, phone, (tokenId) => {
+            if (tokenId) {
+                // lookup the user
+                data.read('users', phone, (err, u) => {
+                    const user = { ...parseJSON(u) };
 
-                console.log(user);
-                callback(200, user);
+                    if (!err && user) {
+                        delete user.password;
+
+                        console.log(user);
+                        callback(200, user);
+                    } else {
+                        callback(404, { error: 'Requested user not found!' });
+                    }
+                });
             } else {
-                callback(404, { error: 'Requested user not found!' });
+                callback(403, { error: 'Authentication failure!' });
             }
         });
     } else {
